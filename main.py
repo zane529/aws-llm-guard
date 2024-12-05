@@ -1,7 +1,25 @@
 from flask import Flask, request, jsonify
 import random
+import anonymize
 
 app = Flask(__name__)
+
+APT_SECRET='aws'
+
+@app.route('/anonymize', methods=['POST'])
+def get_anonymize():
+    auth_header = request.headers.get('Authorization')
+    if auth_header != 'Bearer %s' % APT_SECRET:
+        return {"msg": "Invalid Authorization header"}, 403
+    message = request.json.get('message', None)
+    if message is None:
+        return jsonify({
+            'status': 'error',
+            'errorInfo': 'No message provided',
+            'data': None
+        })
+    result = anonymize.handle(message)
+    return result    
 
 @app.route('/weather', methods=['POST'])
 def get_weather():
