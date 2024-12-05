@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 import random
-import anonymize
+import anonymize, language
 
 app = Flask(__name__)
 
@@ -19,7 +19,23 @@ def get_anonymize():
             'data': None
         })
     result = anonymize.handle(message)
-    return result    
+    return result   
+
+
+@app.route('/language', methods=['POST'])
+def get_language():
+    auth_header = request.headers.get('Authorization')
+    if auth_header != 'Bearer %s' % APT_SECRET:
+        return {"msg": "Invalid Authorization header"}, 403
+    message = request.json.get('message', None)
+    if message is None:
+        return jsonify({
+            'status': 'error',
+            'errorInfo': 'No message provided',
+            'data': None
+        })
+    result = language.handle(message)
+    return result   
 
 @app.route('/weather', methods=['POST'])
 def get_weather():
